@@ -61,20 +61,18 @@ public class NeoZgrnf {
             }
             boolean jumping = server.isJumping(p);
             if (server.isJetpackMode()) {
-                // Jetpack: flying state follows the jump key. Hold space to
-                // thrust up, release to fall freely (with fall damage).
+                // Jetpack: flying state follows the jump key. Holding space
+                // enables flight (climb speed = flyingSpeed, scaled by volume),
+                // releasing disables it so the player falls freely. No manual
+                // velocity is written, so Minecraft's own flight physics stay
+                // smooth.
                 boolean wantFlying = jumping;
                 if (p.getAbilities().flying != wantFlying) {
                     p.getAbilities().flying = wantFlying;
                     p.connection.send(new ClientboundPlayerAbilitiesPacket(p.getAbilities()));
                 }
-                if (jumping) {
-                    double thrust = 0.15 + server.config().getJetpackPower()
-                            * (0.3 + 0.5 * server.getVolume(p) / 100.0);
-                    p.push(0, thrust * 0.1, 0);
-                    if (server.isParticlesEnabled()) {
-                        spawnNote(p);
-                    }
+                if (jumping && server.isParticlesEnabled()) {
+                    spawnNote(p);
                 }
             } else if (p.getAbilities().flying) {
                 if (server.isParticlesEnabled()) {
