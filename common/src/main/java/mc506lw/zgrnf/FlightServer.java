@@ -36,6 +36,7 @@ public final class FlightServer {
         boolean hasMod;
         boolean playing;
         int volume;
+        boolean jumping;
     }
 
     public FlightServer(ServerConfig config) {
@@ -54,11 +55,12 @@ public final class FlightServer {
         state(player).hasMod = true;
     }
 
-    public void onFlight(ServerPlayer player, boolean playing, int volume) {
+    public void onFlight(ServerPlayer player, boolean playing, int volume, boolean jumping) {
         PlayerState st = state(player);
         st.hasMod = true;
         st.playing = playing;
         st.volume = volume;
+        st.jumping = jumping;
         applyFlight(player, st.playing, st.volume);
     }
 
@@ -102,8 +104,19 @@ public final class FlightServer {
             return false;
         }
         return st.playing
-                && config.isAllowed(player.getGameProfile().name())
-                && player.getAbilities().flying;
+                && config.isAllowed(player.getGameProfile().name());
+    }
+
+    /** True while the client holds the jump key (jetpack thrust input). */
+    public boolean isJumping(ServerPlayer player) {
+        PlayerState st = states.get(player.getUUID());
+        return st != null && st.jumping;
+    }
+
+    /** Last reported volume (0-100) for this player, used to scale jetpack thrust. */
+    public int getVolume(ServerPlayer player) {
+        PlayerState st = states.get(player.getUUID());
+        return st != null ? st.volume : 0;
     }
 
     /** Convenience for loaders that want to apply thrust only in jetpack mode. */

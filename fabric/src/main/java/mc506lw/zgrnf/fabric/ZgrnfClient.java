@@ -28,11 +28,11 @@ public class ZgrnfClient implements ClientModInitializer {
     private static final class FabricNetworkClient implements NetworkClient {
 
         @Override
-        public void sendState(boolean playing, int volume) {
+        public void sendState(boolean playing, int volume, boolean jumping) {
             try {
                 if (ClientPlayNetworking.canSend(FlightPayload.TYPE)) {
                     ClientPlayNetworking.send(new FlightPayload((byte) (playing ? 1 : 0),
-                            Math.max(0, Math.min(100, volume))));
+                            Math.max(0, Math.min(100, volume)), (byte) (jumping ? 1 : 0)));
                 }
             } catch (RuntimeException ignored) {
             }

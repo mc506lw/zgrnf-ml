@@ -49,10 +49,11 @@ final class NeoClient {
     private static final class NeoNetworkClient implements NetworkClient {
 
         @Override
-        public void sendState(boolean playing, int volume) {
+        public void sendState(boolean playing, int volume, boolean jumping) {
             try {
                 ClientPacketDistributor.sendToServer(new FlightPayload(
-                        (byte) (playing ? 1 : 0), Math.max(0, Math.min(100, volume))));
+                        (byte) (playing ? 1 : 0), Math.max(0, Math.min(100, volume)),
+                        (byte) (jumping ? 1 : 0)));
             } catch (RuntimeException ignored) {
             }
         }

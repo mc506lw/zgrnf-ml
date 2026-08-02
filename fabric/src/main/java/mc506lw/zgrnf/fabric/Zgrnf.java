@@ -30,7 +30,8 @@ public class Zgrnf implements ModInitializer {
         ServerPlayNetworking.registerGlobalReceiver(HelloPayload.TYPE, (payload, ctx) ->
                 server.onHello(ctx.player()));
         ServerPlayNetworking.registerGlobalReceiver(FlightPayload.TYPE, (payload, ctx) ->
-                server.onFlight(ctx.player(), payload.state() != 0, payload.volume()));
+                server.onFlight(ctx.player(), payload.state() != 0,
+                        payload.volume(), payload.jump() != 0));
         ServerPlayConnectionEvents.DISCONNECT.register((handler, minecraftServer) ->
                 server.onDisconnect(handler.getPlayer().getUUID()));
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) ->
@@ -43,18 +44,35 @@ public class Zgrnf implements ModInitializer {
             if (!server.isFlyingActive(p)) {
                 continue;
             }
-            if (server.isParticlesEnabled()) {
-                ServerLevel level = (ServerLevel) p.level();
-                double x = p.getX();
-                double y = p.getY() + 1.0;
-                double z = p.getZ();
-                int note = level.getRandom().nextInt(25);
-                level.sendParticles(ParticleTypes.NOTE, x, y, z, 1, 0, 0, 0, note / 24.0);
-            }
+            boolean jumping = server.isJumping(p);
             if (server.isJetpackMode()) {
-                double thrust = 0.15 + server.config().getJetpackPower() * 0.8;
-                p.push(0, thrust * 0.1, 0);
+                // Jetpack: flying state follows the jump key. Hold space to
+                // thrust up, release to fall freely (with fall damage).
+                boolean wantFlying = jumping;
+                if (p.getAbilities().flying != wantFlying) {
+                    p.getAbilities().flying = wantFlying;
+                    p.connection.send(new net.minecraft.network.protocol.game.ClientboundPlayerAbilitiesPacket(p.getAbilities()));
+                }
+                if (jumping) {
+                    double thrust = 0.15 + server.config().getJetpackPower()
+                            * (0.3 + 0.5 * server.getVolume(p) / 100.0);
+                    p.push(0, thrust * 0.1, 0);
+                    if (server.isParticlesEnabled()) {
+                        spawnNote(p);
+                    }
+                }
+            } else if (p.getAbilities().flying) {
+                if (server.isParticlesEnabled()) {
+                    spawnNote(p);
+                }
             }
         }
+    }
+
+    private void spawnNote(ServerPlayer p) {
+        ServerLevel level = (ServerLevel) p.level();
+        int note = level.getRandom().nextInt(25);
+        level.sendParticles(ParticleTypes.NOTE, p.getX(), p.getY() + 1.0, p.getZ(),
+                1, 0, 0, 0, note / 24.0);
     }
 }

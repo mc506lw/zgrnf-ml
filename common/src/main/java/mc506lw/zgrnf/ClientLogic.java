@@ -22,13 +22,14 @@ public final class ClientLogic {
             new KeyMapping("key.zgrnf.toggle", InputConstants.Type.KEYSYM, InputConstants.KEY_Y, CATEGORY);
 
     private static long lastVolumeSend;
+    private static boolean lastJumping;
 
     private ClientLogic() {
     }
 
     public static void init(NetworkClient net) {
         MusicPlayer.INSTANCE.addStateListener(playing ->
-                net.sendState(playing, Math.round(MusicPlayer.INSTANCE.getVolume())));
+                net.sendState(playing, Math.round(MusicPlayer.INSTANCE.getVolume()), lastJumping));
     }
 
     public static void tick(Minecraft client, NetworkClient net) {
@@ -38,10 +39,13 @@ public final class ClientLogic {
         while (TOGGLE_KEY.consumeClick()) {
             MusicPlayer.INSTANCE.toggle();
         }
+        boolean jump = client.options.keyJump.isDown();
+        boolean playing = MusicPlayer.INSTANCE.isPlaying();
         long now = System.currentTimeMillis();
-        if (MusicPlayer.INSTANCE.isPlaying() && now - lastVolumeSend >= 1000) {
+        if (jump != lastJumping || (playing && now - lastVolumeSend >= 1000)) {
+            lastJumping = jump;
             lastVolumeSend = now;
-            net.sendState(true, Math.round(MusicPlayer.INSTANCE.getVolume()));
+            net.sendState(playing, Math.round(MusicPlayer.INSTANCE.getVolume()), jump);
         }
     }
 
@@ -61,6 +65,6 @@ public final class ClientLogic {
 
     public static void onJoin(NetworkClient net) {
         net.sendHello();
-        net.sendState(MusicPlayer.INSTANCE.isPlaying(), Math.round(MusicPlayer.INSTANCE.getVolume()));
+        net.sendState(MusicPlayer.INSTANCE.isPlaying(), Math.round(MusicPlayer.INSTANCE.getVolume()), lastJumping);
     }
 }

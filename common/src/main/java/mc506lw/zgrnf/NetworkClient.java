@@ -5,7 +5,7 @@ package mc506lw.zgrnf;
  */
 public interface NetworkClient {
 
-    void sendState(boolean playing, int volume);
+    void sendState(boolean playing, int volume, boolean jumping);
 
     void sendHello();
 }

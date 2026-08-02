@@ -7,6 +7,7 @@ import mc506lw.zgrnf.ServerConfig;
 import mc506lw.zgrnf.network.FlightPayload;
 import mc506lw.zgrnf.network.HelloPayload;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.protocol.game.ClientboundPlayerAbilitiesPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.api.distmarker.Dist;
@@ -45,7 +46,8 @@ public class NeoZgrnf {
         registrar.playToServer(HelloPayload.TYPE, HelloPayload.CODEC,
                 (payload, ctx) -> server.onHello((ServerPlayer) ctx.player()));
         registrar.playToServer(FlightPayload.TYPE, FlightPayload.CODEC,
-                (payload, ctx) -> server.onFlight((ServerPlayer) ctx.player(), payload.state() != 0, payload.volume()));
+                (payload, ctx) -> server.onFlight((ServerPlayer) ctx.player(), payload.state() != 0,
+                        payload.volume(), payload.jump() != 0));
     }
 
     private void onRegisterCommands(RegisterCommandsEvent event) {
@@ -57,19 +59,36 @@ public class NeoZgrnf {
             if (!server.isFlyingActive(p)) {
                 continue;
             }
-            if (server.isParticlesEnabled()) {
-                ServerLevel level = (ServerLevel) p.level();
-                double x = p.getX();
-                double y = p.getY() + 1.0;
-                double z = p.getZ();
-                int note = level.getRandom().nextInt(25);
-                level.sendParticles(ParticleTypes.NOTE, x, y, z, 1, 0, 0, 0, note / 24.0);
-            }
+            boolean jumping = server.isJumping(p);
             if (server.isJetpackMode()) {
-                double thrust = 0.15 + server.config().getJetpackPower() * 0.8;
-                p.push(0, thrust * 0.1, 0);
+                // Jetpack: flying state follows the jump key. Hold space to
+                // thrust up, release to fall freely (with fall damage).
+                boolean wantFlying = jumping;
+                if (p.getAbilities().flying != wantFlying) {
+                    p.getAbilities().flying = wantFlying;
+                    p.connection.send(new ClientboundPlayerAbilitiesPacket(p.getAbilities()));
+                }
+                if (jumping) {
+                    double thrust = 0.15 + server.config().getJetpackPower()
+                            * (0.3 + 0.5 * server.getVolume(p) / 100.0);
+                    p.push(0, thrust * 0.1, 0);
+                    if (server.isParticlesEnabled()) {
+                        spawnNote(p);
+                    }
+                }
+            } else if (p.getAbilities().flying) {
+                if (server.isParticlesEnabled()) {
+                    spawnNote(p);
+                }
             }
         }
+    }
+
+    private void spawnNote(ServerPlayer p) {
+        ServerLevel level = (ServerLevel) p.level();
+        int note = level.getRandom().nextInt(25);
+        level.sendParticles(ParticleTypes.NOTE, p.getX(), p.getY() + 1.0, p.getZ(),
+                1, 0, 0, 0, note / 24.0);
     }
 
     private void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
