@@ -139,26 +139,34 @@ public final class Zgrnf extends JavaPlugin implements PluginMessageListener {
 
     private void enableFlight(Player player, PlayerState st) {
         int vol = Math.max(0, Math.min(100, st.volume));
-        if (player.getGameMode() == GameMode.SPECTATOR) {
+        GameMode gm = player.getGameMode();
+        if (gm == GameMode.SPECTATOR) {
             return;
         }
         if (!isAllowed(player.getName())) {
             disableFlight(player);
             return;
         }
+        // Grant the ability to fly, but never force flying. The player still
+        // starts flying by double-tapping space, so pausing/walking around never
+        // yanks them into the air.
         player.setAllowFlight(true);
-        player.setFlying(true);
         // Paper divides the value by 2 internally, so 2x makes maxFlySpeed == flyingSpeed.
-        player.setFlySpeed(2f * maxFlySpeed * (vol / 100f));
+        // Floor the speed so low volume doesn't leave the player hovering in place.
+        float speed = 2f * maxFlySpeed * (vol / 100f);
+        player.setFlySpeed(Math.max(0.05f, speed));
     }
 
     private void disableFlight(Player player) {
-        boolean wasActive = states.get(player.getUniqueId()) != null && player.getAllowFlight();
-        if (wasActive || player.getAllowFlight()) {
-            player.setAllowFlight(false);
-            player.setFlying(false);
+        GameMode gm = player.getGameMode();
+        // Creative and spectator already have native flight; only reset the speed.
+        if (gm == GameMode.CREATIVE || gm == GameMode.SPECTATOR) {
             player.setFlySpeed(0.1f);
+            return;
         }
+        player.setAllowFlight(false);
+        player.setFlying(false);
+        player.setFlySpeed(0.1f);
     }
 
     boolean isAllowed(String playerName) {
