@@ -77,15 +77,42 @@ public final class FlightServer {
         Abilities a = player.getAbilities();
         if (playing && config.isAllowed(player.getGameProfile().name())) {
             int vol = Math.max(0, Math.min(100, volume));
+            // Grant the ability to fly; the player still takes off by
+            // double-tapping space so we never yank them into the air.
             a.mayfly = true;
-            a.flying = true;
-            a.setFlyingSpeed(config.getMaxFlySpeed() * vol / 100f);
+            if (config.getFlightMode() == ServerConfig.FlightMode.JETPACK) {
+                // Jetpack keeps a higher baseline speed so boost feels strong.
+                a.setFlyingSpeed(config.getMaxFlySpeed()
+                        * (0.5f + 0.5f * vol / 100f)
+                        * (1f + config.getJetpackPower()));
+            } else {
+                a.setFlyingSpeed(config.getMaxFlySpeed() * vol / 100f);
+            }
         } else {
             a.mayfly = false;
-            a.flying = false;
             a.setFlyingSpeed(0.05f);
         }
         player.connection.send(new ClientboundPlayerAbilitiesPacket(a));
+    }
+
+    /** True while the player should get jetpack/particle effects this tick. */
+    public boolean isFlyingActive(ServerPlayer player) {
+        PlayerState st = states.get(player.getUUID());
+        if (st == null || !st.hasMod) {
+            return false;
+        }
+        return st.playing
+                && config.isAllowed(player.getGameProfile().name())
+                && player.getAbilities().flying;
+    }
+
+    /** Convenience for loaders that want to apply thrust only in jetpack mode. */
+    public boolean isJetpackMode() {
+        return config.getFlightMode() == ServerConfig.FlightMode.JETPACK;
+    }
+
+    public boolean isParticlesEnabled() {
+        return config.isParticlesEnabled();
     }
 
     public void reapplyAll(MinecraftServer server) {
@@ -109,6 +136,10 @@ public final class FlightServer {
                 .then(cmd("list").executes(this::cmdList))
                 .then(cmd("mode")
                         .then(wordArg("mode").executes(this::cmdMode)))
+                .then(cmd("flightmode")
+                        .then(wordArg("flightmode").executes(this::cmdFlightMode)))
+                .then(cmd("particles")
+                        .then(wordArg("onoff").executes(this::cmdParticles)))
                 .then(listCommand(true))
                 .then(listCommand(false)));
     }
@@ -145,6 +176,25 @@ public final class FlightServer {
         config.save();
         reapplyAll(ctx.getSource().getServer());
         success(ctx, "zgrnf: 模式已设为 " + mode);
+        return 1;
+    }
+
+    private int cmdFlightMode(CommandContext<CommandSourceStack> ctx) {
+        String m = StringArgumentType.getString(ctx, "flightmode");
+        ServerConfig.FlightMode mode = ServerConfig.parseFlightMode(m);
+        config.setFlightMode(mode);
+        config.save();
+        reapplyAll(ctx.getSource().getServer());
+        success(ctx, "zgrnf: 飞行模式已设为 " + mode);
+        return 1;
+    }
+
+    private int cmdParticles(CommandContext<CommandSourceStack> ctx) {
+        String v = StringArgumentType.getString(ctx, "onoff");
+        boolean enabled = "on".equalsIgnoreCase(v) || "true".equalsIgnoreCase(v);
+        config.setParticlesEnabled(enabled);
+        config.save();
+        success(ctx, "zgrnf: 粒子特效已" + (enabled ? "开启" : "关闭"));
         return 1;
     }
 
