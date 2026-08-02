@@ -4,6 +4,7 @@ import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.resources.Identifier;
 
 /**
  * Loader-agnostic client logic. The loader module registers the key mapping and
@@ -11,11 +12,14 @@ import net.minecraft.client.gui.screens.Screen;
  */
 public final class ClientLogic {
 
+    public static final KeyMapping.Category CATEGORY =
+            new KeyMapping.Category(Identifier.withDefaultNamespace("key.categories.zgrnf"));
+
     public static final KeyMapping OPEN_KEY =
-            new KeyMapping("key.zgrnf.open", InputConstants.Type.KEYSYM, InputConstants.KEY_G, KeyMapping.Category.MISC);
+            new KeyMapping("key.zgrnf.open", InputConstants.Type.KEYSYM, InputConstants.KEY_G, CATEGORY);
 
     public static final KeyMapping TOGGLE_KEY =
-            new KeyMapping("key.zgrnf.toggle", InputConstants.Type.KEYSYM, InputConstants.KEY_O, KeyMapping.Category.MISC);
+            new KeyMapping("key.zgrnf.toggle", InputConstants.Type.KEYSYM, InputConstants.KEY_Y, CATEGORY);
 
     private static long lastVolumeSend;
 
