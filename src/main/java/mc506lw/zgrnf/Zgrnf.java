@@ -240,12 +240,13 @@ public final class Zgrnf extends JavaPlugin implements PluginMessageListener {
 
     private TickTask scheduleTick(Player player) {
         // Paper/Folia: run on the player's entity scheduler so it stays safe
-        // on Folia's per-region threads.
+        // on Folia's per-region threads. The first parameter of runAtFixedRate
+        // is declared as Plugin, not JavaPlugin, so match it exactly.
         try {
             Method getScheduler = Player.class.getMethod("getScheduler");
             Object scheduler = getScheduler.invoke(player);
             Method run = scheduler.getClass().getMethod("runAtFixedRate",
-                    JavaPlugin.class, Consumer.class, Runnable.class, long.class, long.class);
+                    org.bukkit.plugin.Plugin.class, Consumer.class, Runnable.class, long.class, long.class);
             Object[] holder = new Object[1];
             Consumer<Object> consumer = task -> tickFx(player);
             holder[0] = run.invoke(scheduler, this, consumer, (Runnable) () -> { }, 1L, 1L);
