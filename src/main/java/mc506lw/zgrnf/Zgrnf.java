@@ -107,6 +107,25 @@ public final class Zgrnf extends JavaPlugin implements PluginMessageListener {
         saveConfigFile();
     }
 
+    /**
+     * Clear any leftover flying state for playing players. Called when the
+     * flight mode changes so a jetpack session that ended mid-flight (flying
+     * still on) does not invert creative's double-tap-space toggle when the
+     * mode is switched back to CREATIVE.
+     */
+    void resetFlightState() {
+        for (UUID id : new ArrayList<>(states.keySet())) {
+            PlayerState st = states.get(id);
+            if (st == null || !st.playing) {
+                continue;
+            }
+            Player p = getServer().getPlayer(id);
+            if (p != null && p.isFlying()) {
+                p.setFlying(false);
+            }
+        }
+    }
+
     private void loadConfig() {
         reloadConfig();
         YamlConfiguration cfg = (YamlConfiguration) getConfig();
@@ -231,13 +250,15 @@ public final class Zgrnf extends JavaPlugin implements PluginMessageListener {
                 return;
             }
             if (flightMode == FlightMode.JETPACK) {
-                // Jetpack: flying state follows the jump key. Hold space to
-                // thrust up, release to fall freely (with fall damage).
+                // Jetpack: flying state follows the jump key. Holding space
+                // enables flight (climb speed = flySpeed, scaled by volume),
+                // releasing disables it so the player falls freely. No manual
+                // velocity is written, so Minecraft's own flight physics stay
+                // smooth.
                 if (st.jumping) {
                     if (!player.isFlying()) {
                         player.setFlying(true);
                     }
-                    jetpackBoost(player, st.volume);
                     if (particles) {
                         spawnNote(player);
                     }
@@ -278,15 +299,6 @@ public final class Zgrnf extends JavaPlugin implements PluginMessageListener {
                     .runTaskTimer(this, () -> tickFx(player), 1L, 1L);
             return task::cancel;
         }
-    }
-
-    private void jetpackBoost(Player player, int volume) {
-        double thrust = 0.15 + jetpackPower * (0.3 + 0.5 * volume / 100.0);
-        org.bukkit.util.Vector v = player.getVelocity();
-        player.setVelocity(new org.bukkit.util.Vector(
-                v.getX(),
-                Math.max(v.getY() + thrust * 0.12, thrust * 0.7),
-                v.getZ()));
     }
 
     private void spawnNote(Player player) {

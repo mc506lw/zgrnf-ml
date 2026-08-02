@@ -51,9 +51,13 @@ public final class ZgrnfCommand implements CommandExecutor, TabCompleter {
                     send(sender, "zgrnf: 当前飞行模式 " + plugin.getFlightMode());
                     return true;
                 }
+                FlightMode old = plugin.getFlightMode();
                 plugin.setFlightMode(Zgrnf.parseFlightMode(args[1]));
                 plugin.save();
                 plugin.reload();
+                if (old != plugin.getFlightMode()) {
+                    plugin.resetFlightState();
+                }
                 send(sender, "zgrnf: 飞行模式已设为 " + plugin.getFlightMode());
                 return true;
             case "particles":
