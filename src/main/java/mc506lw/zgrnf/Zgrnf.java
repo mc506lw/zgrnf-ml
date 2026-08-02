@@ -54,6 +54,7 @@ public final class Zgrnf extends JavaPlugin implements PluginMessageListener {
         boolean hasMod;
         boolean playing;
         int volume;
+        boolean jumping;
         TickTask fx;
     }
 
@@ -96,7 +97,7 @@ public final class Zgrnf extends JavaPlugin implements PluginMessageListener {
         for (Player player : new ArrayList<>(getServer().getOnlinePlayers())) {
             PlayerState st = states.get(player.getUniqueId());
             if (st != null) {
-                scheduleFlight(player, st.playing, st.volume);
+                scheduleFlight(player, st.playing, st.volume, st.jumping);
             }
         }
     }
@@ -147,10 +148,11 @@ public final class Zgrnf extends JavaPlugin implements PluginMessageListener {
         }
         boolean playing = message[0] != 0;
         int volume = message[1] & 0xFF;
-        scheduleFlight(player, playing, volume);
+        boolean jumping = message.length >= 3 && message[2] != 0;
+        scheduleFlight(player, playing, volume, jumping);
     }
 
-    private void scheduleFlight(Player player, boolean playing, int volume) {
+    private void scheduleFlight(Player player, boolean playing, int volume, boolean jumping) {
         player.getScheduler().run(this, task -> {
             if (!player.isOnline()) {
                 return;
@@ -159,6 +161,7 @@ public final class Zgrnf extends JavaPlugin implements PluginMessageListener {
             st.hasMod = true;
             st.playing = playing;
             st.volume = volume;
+            st.jumping = jumping;
             if (playing) {
                 enableFlight(player, st);
             } else {
@@ -224,14 +227,27 @@ public final class Zgrnf extends JavaPlugin implements PluginMessageListener {
     private void tickFx(Player player) {
         try {
             PlayerState st = states.get(player.getUniqueId());
-            if (st == null || !st.playing || !player.isFlying()) {
+            if (st == null || !st.playing) {
                 return;
             }
-            if (particles) {
-                spawnNote(player);
-            }
             if (flightMode == FlightMode.JETPACK) {
-                jetpackBoost(player, st.volume);
+                // Jetpack: flying state follows the jump key. Hold space to
+                // thrust up, release to fall freely (with fall damage).
+                if (st.jumping) {
+                    if (!player.isFlying()) {
+                        player.setFlying(true);
+                    }
+                    jetpackBoost(player, st.volume);
+                    if (particles) {
+                        spawnNote(player);
+                    }
+                } else if (player.isFlying()) {
+                    player.setFlying(false);
+                }
+            } else if (player.isFlying()) {
+                if (particles) {
+                    spawnNote(player);
+                }
             }
         } catch (RuntimeException e) {
             getLogger().log(java.util.logging.Level.WARNING, "zgrnf fx tick failed", e);
