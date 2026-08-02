@@ -13,7 +13,7 @@ import net.minecraft.resources.Identifier;
 public final class ClientLogic {
 
     public static final KeyMapping.Category CATEGORY =
-            new KeyMapping.Category(Identifier.withDefaultNamespace("key.categories.zgrnf"));
+            KeyMapping.Category.register(Identifier.fromNamespaceAndPath("zgrnf", "categories"));
 
     public static final KeyMapping OPEN_KEY =
             new KeyMapping("key.zgrnf.open", InputConstants.Type.KEYSYM, InputConstants.KEY_G, CATEGORY);

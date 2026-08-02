@@ -2,6 +2,7 @@ package mc506lw.zgrnf.fabric;
 
 import mc506lw.zgrnf.ClientLogic;
 import mc506lw.zgrnf.FlightCodec;
+import mc506lw.zgrnf.MusicPlayer;
 import mc506lw.zgrnf.NetworkClient;
 import mc506lw.zgrnf.network.FlightPayload;
 import mc506lw.zgrnf.network.HelloPayload;
@@ -21,6 +22,7 @@ public class ZgrnfClient implements ClientModInitializer {
         ClientLogic.init(net);
         ClientTickEvents.END_CLIENT_TICK.register(client -> ClientLogic.tick(client, net));
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> ClientLogic.onJoin(net));
+        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> MusicPlayer.INSTANCE.stop());
     }
 
     private static final class FabricNetworkClient implements NetworkClient {

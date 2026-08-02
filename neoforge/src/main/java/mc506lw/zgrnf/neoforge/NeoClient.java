@@ -2,6 +2,7 @@ package mc506lw.zgrnf.neoforge;
 
 import mc506lw.zgrnf.ClientLogic;
 import mc506lw.zgrnf.FlightCodec;
+import mc506lw.zgrnf.MusicPlayer;
 import mc506lw.zgrnf.NetworkClient;
 import mc506lw.zgrnf.network.FlightPayload;
 import mc506lw.zgrnf.network.HelloPayload;
@@ -25,6 +26,7 @@ final class NeoClient {
         modBus.addListener(NeoClient::onRegisterKeyMappings);
         NeoForge.EVENT_BUS.addListener(NeoClient::onClientTick);
         NeoForge.EVENT_BUS.addListener(NeoClient::onLoggingIn);
+        NeoForge.EVENT_BUS.addListener(NeoClient::onLoggingOut);
     }
 
     private static void onRegisterKeyMappings(RegisterKeyMappingsEvent event) {
@@ -38,6 +40,10 @@ final class NeoClient {
 
     private static void onLoggingIn(ClientPlayerNetworkEvent.LoggingIn event) {
         ClientLogic.onJoin(NET);
+    }
+
+    private static void onLoggingOut(ClientPlayerNetworkEvent.LoggingOut event) {
+        MusicPlayer.INSTANCE.stop();
     }
 
     private static final class NeoNetworkClient implements NetworkClient {
