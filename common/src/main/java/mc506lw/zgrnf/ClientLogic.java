@@ -14,6 +14,9 @@ public final class ClientLogic {
     public static final KeyMapping OPEN_KEY =
             new KeyMapping("key.zgrnf.open", InputConstants.Type.KEYSYM, InputConstants.KEY_G, KeyMapping.Category.MISC);
 
+    public static final KeyMapping TOGGLE_KEY =
+            new KeyMapping("key.zgrnf.toggle", InputConstants.Type.KEYSYM, InputConstants.KEY_O, KeyMapping.Category.MISC);
+
     private static long lastVolumeSend;
 
     private ClientLogic() {
@@ -27,6 +30,9 @@ public final class ClientLogic {
     public static void tick(Minecraft client, NetworkClient net) {
         while (OPEN_KEY.consumeClick()) {
             openFlightScreen(client);
+        }
+        while (TOGGLE_KEY.consumeClick()) {
+            MusicPlayer.INSTANCE.toggle();
         }
         long now = System.currentTimeMillis();
         if (MusicPlayer.INSTANCE.isPlaying() && now - lastVolumeSend >= 1000) {
@@ -51,8 +57,6 @@ public final class ClientLogic {
 
     public static void onJoin(NetworkClient net) {
         net.sendHello();
-        if (MusicPlayer.INSTANCE.isPlaying()) {
-            net.sendState(true, Math.round(MusicPlayer.INSTANCE.getVolume()));
-        }
+        net.sendState(MusicPlayer.INSTANCE.isPlaying(), Math.round(MusicPlayer.INSTANCE.getVolume()));
     }
 }

@@ -16,6 +16,7 @@ public class ZgrnfClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         KeyMappingHelper.registerKeyMapping(ClientLogic.OPEN_KEY);
+        KeyMappingHelper.registerKeyMapping(ClientLogic.TOGGLE_KEY);
         NetworkClient net = new FabricNetworkClient();
         ClientLogic.init(net);
         ClientTickEvents.END_CLIENT_TICK.register(client -> ClientLogic.tick(client, net));

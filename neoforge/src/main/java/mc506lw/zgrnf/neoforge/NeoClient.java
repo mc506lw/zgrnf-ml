@@ -29,6 +29,7 @@ final class NeoClient {
 
     private static void onRegisterKeyMappings(RegisterKeyMappingsEvent event) {
         event.register(ClientLogic.OPEN_KEY);
+        event.register(ClientLogic.TOGGLE_KEY);
     }
 
     private static void onClientTick(ClientTickEvent.Post event) {
