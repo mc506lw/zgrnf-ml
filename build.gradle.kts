@@ -21,6 +21,14 @@ java {
 }
 
 tasks {
+    compileJava {
+        options.encoding = "UTF-8"
+    }
+
+    processResources {
+        filteringCharset = "UTF-8"
+    }
+
     build {
         dependsOn(shadowJar)
     }

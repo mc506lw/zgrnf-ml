@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import static mc506lw.zgrnf.Zgrnf.FlightMode;
 import static mc506lw.zgrnf.Zgrnf.Mode;
 
 public final class ZgrnfCommand implements CommandExecutor, TabCompleter {
@@ -23,13 +24,13 @@ public final class ZgrnfCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (args.length == 0) {
-            send(sender, "用法: /zgrnf reload | list | mode <whitelist|blacklist|off> | whitelist add|remove|list <玩家> | blacklist add|remove|list <玩家>");
+            send(sender, "用法: /zgrnf reload | list | mode <whitelist|blacklist|off> | flightmode <creative|jetpack> | particles <on|off> | whitelist add|remove|list <玩家> | blacklist add|remove|list <玩家>");
             return true;
         }
         switch (args[0].toLowerCase(Locale.ROOT)) {
             case "reload":
                 plugin.reload();
-                send(sender, "zgrnf: 配置已重载,当前模式 " + plugin.getMode());
+                send(sender, "zgrnf: 配置已重载,当前模式 " + plugin.getMode() + ",飞行模式 " + plugin.getFlightMode());
                 return true;
             case "list":
                 send(sender, "zgrnf: 已装 mod(" + plugin.listPlayersWithMod().size() + "): " + String.join(", ", plugin.listPlayersWithMod()));
@@ -43,6 +44,24 @@ public final class ZgrnfCommand implements CommandExecutor, TabCompleter {
                 plugin.setMode(Zgrnf.parseMode(args[1]));
                 plugin.reload();
                 send(sender, "zgrnf: 模式已设为 " + plugin.getMode());
+                return true;
+            case "flightmode":
+                if (args.length < 2) {
+                    send(sender, "zgrnf: 当前飞行模式 " + plugin.getFlightMode());
+                    return true;
+                }
+                plugin.setFlightMode(Zgrnf.parseFlightMode(args[1]));
+                plugin.reload();
+                send(sender, "zgrnf: 飞行模式已设为 " + plugin.getFlightMode());
+                return true;
+            case "particles":
+                if (args.length < 2) {
+                    send(sender, "zgrnf: 粒子特效 " + (plugin.isParticlesEnabled() ? "开" : "关"));
+                    return true;
+                }
+                plugin.setParticlesEnabled("on".equalsIgnoreCase(args[1]) || "true".equalsIgnoreCase(args[1]));
+                plugin.reload();
+                send(sender, "zgrnf: 粒子特效已" + (plugin.isParticlesEnabled() ? "开启" : "关闭"));
                 return true;
             case "whitelist":
             case "blacklist":
@@ -98,14 +117,8 @@ public final class ZgrnfCommand implements CommandExecutor, TabCompleter {
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         List<String> out = new ArrayList<>();
         if (args.length == 1) {
-            for (String s : new String[]{"reload", "list", "mode", "whitelist", "blacklist"}) {
+            for (String s : new String[]{"reload", "list", "mode", "flightmode", "particles", "whitelist", "blacklist"}) {
                 if (s.startsWith(args[0].toLowerCase(Locale.ROOT))) {
-                    out.add(s);
-                }
-            }
-        } else if (args.length == 2 && ("whitelist".equalsIgnoreCase(args[0]) || "blacklist".equalsIgnoreCase(args[0]))) {
-            for (String s : new String[]{"add", "remove", "list"}) {
-                if (s.startsWith(args[1].toLowerCase(Locale.ROOT))) {
                     out.add(s);
                 }
             }
@@ -114,6 +127,25 @@ public final class ZgrnfCommand implements CommandExecutor, TabCompleter {
                 String n = m.name().toLowerCase(Locale.ROOT);
                 if (n.startsWith(args[1].toLowerCase(Locale.ROOT))) {
                     out.add(n);
+                }
+            }
+        } else if (args.length == 2 && "flightmode".equalsIgnoreCase(args[0])) {
+            for (FlightMode m : FlightMode.values()) {
+                String n = m.name().toLowerCase(Locale.ROOT);
+                if (n.startsWith(args[1].toLowerCase(Locale.ROOT))) {
+                    out.add(n);
+                }
+            }
+        } else if (args.length == 2 && "particles".equalsIgnoreCase(args[0])) {
+            for (String s : new String[]{"on", "off"}) {
+                if (s.startsWith(args[1].toLowerCase(Locale.ROOT))) {
+                    out.add(s);
+                }
+            }
+        } else if (args.length == 2 && ("whitelist".equalsIgnoreCase(args[0]) || "blacklist".equalsIgnoreCase(args[0]))) {
+            for (String s : new String[]{"add", "remove", "list"}) {
+                if (s.startsWith(args[1].toLowerCase(Locale.ROOT))) {
+                    out.add(s);
                 }
             }
         } else if (args.length == 3 && ("whitelist".equalsIgnoreCase(args[0]) || "blacklist".equalsIgnoreCase(args[0]))) {
