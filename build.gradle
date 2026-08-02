@@ -1,0 +1,34 @@
+plugins {
+    // see https://maven.fabricmc.net/fabric-loom/fabric-loom.gradle.plugin/maven-metadata.xml for new versions
+    id 'net.fabricmc.fabric-loom' version '1.16.3' apply false
+    // see https://projects.neoforged.net/neoforged/moddevgradle for new versions
+    id 'net.neoforged.moddev' version '2.0.141' apply false
+}
+
+// maven.neoforged.net is blocked on this network (GFW). Mirror its /releases
+// content through QLU (BMCLAPI) so moddev can resolve NeoForge/NeoForm.
+allprojects {
+    repositories {
+        // Local maven repo that fills gaps the QLU mirror does not sync
+        // (e.g. net.neoforged.fancymodloader poms). Artifacts are curated
+        // by hand in E:/Projects/Minecraft/Mods/.neoforged-local-repo.
+        maven {
+            name = 'NeoForgeLocalRepo'
+            url = uri('E:/Projects/Minecraft/Mods/.neoforged-local-repo')
+            content {
+                includeGroupAndSubgroups 'net.neoforged.fancymodloader'
+            }
+        }
+        // maven.neoforged.net is blocked on this network (GFW). Mirror its
+        // /releases content through QLU (BMCLAPI) so moddev can resolve
+        // NeoForge/NeoForm.
+        maven {
+            name = 'NeoForgeCNMirror'
+            url = uri('https://mirrors.qlu.edu.cn/bmclapi/')
+            content {
+                includeGroupAndSubgroups 'net.neoforged'
+            }
+        }
+        mavenCentral()
+    }
+}
