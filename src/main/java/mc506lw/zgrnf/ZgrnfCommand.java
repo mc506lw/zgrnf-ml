@@ -42,6 +42,7 @@ public final class ZgrnfCommand implements CommandExecutor, TabCompleter {
                     return true;
                 }
                 plugin.setMode(Zgrnf.parseMode(args[1]));
+                plugin.save();
                 plugin.reload();
                 send(sender, "zgrnf: 模式已设为 " + plugin.getMode());
                 return true;
@@ -51,6 +52,7 @@ public final class ZgrnfCommand implements CommandExecutor, TabCompleter {
                     return true;
                 }
                 plugin.setFlightMode(Zgrnf.parseFlightMode(args[1]));
+                plugin.save();
                 plugin.reload();
                 send(sender, "zgrnf: 飞行模式已设为 " + plugin.getFlightMode());
                 return true;
@@ -60,6 +62,7 @@ public final class ZgrnfCommand implements CommandExecutor, TabCompleter {
                     return true;
                 }
                 plugin.setParticlesEnabled("on".equalsIgnoreCase(args[1]) || "true".equalsIgnoreCase(args[1]));
+                plugin.save();
                 plugin.reload();
                 send(sender, "zgrnf: 粒子特效已" + (plugin.isParticlesEnabled() ? "开启" : "关闭"));
                 return true;
@@ -90,6 +93,7 @@ public final class ZgrnfCommand implements CommandExecutor, TabCompleter {
                     return;
                 }
                 if (set.add(args[2].toLowerCase(Locale.ROOT))) {
+                    plugin.save();
                     plugin.reload();
                     send(sender, "zgrnf: 已加入" + label + ": " + args[2]);
                 } else {
@@ -102,6 +106,7 @@ public final class ZgrnfCommand implements CommandExecutor, TabCompleter {
                     return;
                 }
                 if (set.remove(args[2].toLowerCase(Locale.ROOT))) {
+                    plugin.save();
                     plugin.reload();
                     send(sender, "zgrnf: 已移出" + label + ": " + args[2]);
                 } else {

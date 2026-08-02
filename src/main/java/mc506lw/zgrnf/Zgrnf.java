@@ -92,7 +92,6 @@ public final class Zgrnf extends JavaPlugin implements PluginMessageListener {
     }
 
     public void reload() {
-        saveConfigFile();
         loadConfig();
         for (Player player : new ArrayList<>(getServer().getOnlinePlayers())) {
             PlayerState st = states.get(player.getUniqueId());
@@ -100,6 +99,11 @@ public final class Zgrnf extends JavaPlugin implements PluginMessageListener {
                 scheduleFlight(player, st.playing, st.volume);
             }
         }
+    }
+
+    /** Persist the in-memory config to config.yml (only call on deliberate changes). */
+    public void save() {
+        saveConfigFile();
     }
 
     private void loadConfig() {
@@ -218,15 +222,19 @@ public final class Zgrnf extends JavaPlugin implements PluginMessageListener {
     }
 
     private void tickFx(Player player) {
-        PlayerState st = states.get(player.getUniqueId());
-        if (st == null || !st.playing || !player.isFlying()) {
-            return;
-        }
-        if (particles) {
-            spawnNote(player);
-        }
-        if (flightMode == FlightMode.JETPACK) {
-            jetpackBoost(player, st.volume);
+        try {
+            PlayerState st = states.get(player.getUniqueId());
+            if (st == null || !st.playing || !player.isFlying()) {
+                return;
+            }
+            if (particles) {
+                spawnNote(player);
+            }
+            if (flightMode == FlightMode.JETPACK) {
+                jetpackBoost(player, st.volume);
+            }
+        } catch (RuntimeException e) {
+            getLogger().log(java.util.logging.Level.WARNING, "zgrnf fx tick failed", e);
         }
     }
 
@@ -269,7 +277,7 @@ public final class Zgrnf extends JavaPlugin implements PluginMessageListener {
         int note = (int) (Math.random() * 25);
         player.getWorld().spawnParticle(
                 Particle.NOTE, loc.getX(), loc.getY() + 1.0, loc.getZ(),
-                0, 0, 0, 0, note);
+                1, 0, 0, 0, note);
     }
 
     boolean isAllowed(String playerName) {
