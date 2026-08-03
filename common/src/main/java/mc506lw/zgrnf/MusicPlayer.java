@@ -137,7 +137,7 @@ public final class MusicPlayer {
             }
             File file = extractBundledSong();
             if (file == null) {
-                errorMessage = "Bundled song (assets/zgrnf/song.mp3) is missing!";
+                errorMessage = "未找到歌曲:请把 mod jar 和你的 mp3 放一起,运行 inject-song.ps1 把 mp3 打进 jar";
                 fireState();
                 return;
             }

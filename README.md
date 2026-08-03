@@ -9,10 +9,37 @@
 - 播放音乐时玩家获得飞行能力,音量大小即飞行速度(100% 时达到 `maxFlySpeed`)。
 - 两种飞行模式:
   - **creative(创造原生)**:像创造模式一样双击空格起飞,速度随音量,手感最稳(默认)。
-  - **jetpack(喷气背包)**:双击空格起飞后持续喷气上升,推力随音量增强,可再次双击空格取消飞行降落。
+  - **jetpack(喷气背包)**:按住空格持续上升、松开自由下落(有摔落伤害),推力随音量增强。
 - 可选音符粒子特效:飞行中的玩家身上冒音符粒子(`particles` 开关)。
 - 服务端命令 `/zgrnf` 可热重载配置、查看玩家、切换白名单/黑名单/飞行模式/粒子。
-- 按 **O** 键切换播放/暂停音乐(客户端)。
+- 客户端按键:**G** 打开播放界面,**Y** 播放/暂停音乐,退出服务器自动停止播放。
+- mod **不内置任何音乐文件**:需要自己准备 MP3,用 `inject-song.ps1` 打进 jar(见下节)。
+
+## 导入你的音乐(重要)
+
+> **版权声明**:mod 不附带任何音频。请只导入你**拥有合法使用权**的音频文件(自己录制、获得授权或公共领域素材),本 mod 不对用户导入的音频承担任何版权责任。
+
+mod 从 jar 内的 `assets/zgrnf/song.mp3` 读取并循环播放,但默认发行版**不包含**该文件,以免内置他人作品引发版权问题。你需要自己准备一首 **MP3**,再用随包提供的脚本把它打进 mod jar:
+
+1. 把 `inject-song.ps1`、下载到的 mod jar(`zgrnf-fabric-*.jar` / `zgrnf-neoforge-*.jar`)和你的 `xxx.mp3` 放到**同一个文件夹**。
+2. 在该文件夹打开 PowerShell,运行:
+
+   ```powershell
+   .\inject-song.ps1
+   ```
+
+   脚本会自动找到目录里的 mp3 和所有 zgrnf mod jar,把 mp3 写入每个 jar 的 `assets/zgrnf/song.mp3`。
+
+3. 把注入后的 jar 放进 `mods` 文件夹,启动游戏,按 **G** 打开界面、按 **Y** 播放即可。
+
+也支持手动指定文件:
+
+```powershell
+.\inject-song.ps1 -Mp3 "D:\音乐\我的歌.mp3" -Jar "D:\mods\zgrnf-fabric-26.2-26.2.0.0.jar"
+```
+
+- 服务端插件不需要音乐文件,音乐只在客户端本地播放。
+- 想换歌:重新运行脚本(新 mp3 会覆盖旧条目),或直接删掉再注入新的。
 
 ## 版本分支
 
@@ -66,6 +93,7 @@ jar 输出在 `neoforge/build/libs/` 与 `fabric/build/libs/`。
 - `neoforge/` NeoForge 入口与 `neoforge.mods.toml`
 - `fabric/`   Fabric 入口与 `fabric.mod.json`
 - `build-logic/` 模块共享的 Gradle 约定
+- `inject-song.ps1` 音乐导入脚本:把你自己准备的 mp3 打进 mod jar
 
 ## 许可证
 
