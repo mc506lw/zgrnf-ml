@@ -1,6 +1,6 @@
-# zgrnf — Paper/Spigot/Folia 服务端插件
+# Lapis-Zgrnf — Paper/Spigot/Folia 服务端插件
 
-zgrnf 客户端 mod(见 `main` 分支)的配套服务端插件。客户端播放音乐时获得飞行,音量即飞行速度(100% 时达到 `maxFlySpeed`),暂停音乐即取消飞行。
+Lapis-Zgrnf 客户端 mod(见 `main` 分支)的配套服务端插件。客户端播放音乐时获得飞行,音量即飞行速度(100% 时达到 `maxFlySpeed`),暂停音乐即取消飞行。
 
 - 插件消息通道:`zgrnf:flight`(2 字节:状态 + 音量 0-100)
 - 放行规则:`whitelist` / `blacklist` / `off`(config.yml,可热重载)
@@ -39,7 +39,7 @@ $env:JAVA_HOME = 'D:\java\zulu17'
 gradle build
 ```
 
-输出:`build/libs/zgrnf-<version>-all.jar`(shadow jar)。
+输出:`build/libs/Lapis-Zgrnf-<version>-all.jar`(shadow jar)。
 
 ## 许可证
 

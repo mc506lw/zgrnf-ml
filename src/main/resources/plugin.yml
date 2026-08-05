@@ -1,21 +1,21 @@
-name: zgrnf
+name: Lapis-Zgrnf
 version: '${version}'
 
 main: mc506lw.zgrnf.Zgrnf
 api-version: '1.20'
 folia-supported: true
 load: POSTWORLD
-description: zgrnf 音乐飞行插件:安装 zgrnf mod 的玩家播放音乐时获得飞行(创造原生/喷气背包两种模式,可选音符粒子特效)。
+description: Lapis-Zgrnf 音乐飞行插件:安装 Lapis-Zgrnf mod 的玩家播放音乐时获得飞行(创造原生/喷气背包两种模式,可选音符粒子特效)。
 author: mc506lw
 
 commands:
   zgrnf:
-    description: zgrnf 管理命令
+    description: Lapis-Zgrnf 管理命令
     usage: /zgrnf reload|list|mode <whitelist|blacklist|off>|flightmode <creative|jetpack>|particles <on|off>|whitelist add|remove|list <玩家>|blacklist add|remove|list <玩家>
     permission: zgrnf.admin
     permission-message: 你没有权限使用此命令
 
 permissions:
   zgrnf.admin:
-    description: 使用 zgrnf 管理命令
+    description: 使用 Lapis-Zgrnf 管理命令
     default: op

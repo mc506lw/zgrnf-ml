@@ -1,1 +1,1 @@
-rootProject.name = "zgrnf"
+rootProject.name = "Lapis-Zgrnf"
