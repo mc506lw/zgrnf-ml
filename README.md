@@ -1,4 +1,4 @@
-# zgrnf-ml
+# Lapis-Zgrnf
 
 中国人会飞。按 **G** 打开音乐播放界面,播放音乐即可获得飞行。
 
@@ -21,21 +21,21 @@
 
 mod 从 jar 内的 `assets/zgrnf/song.mp3` 读取并循环播放,但默认发行版**不包含**该文件,以免内置他人作品引发版权问题。你需要自己准备一首 **MP3**,再用随包提供的脚本把它打进 mod jar:
 
-1. 把 `inject-song.ps1`、下载到的 mod jar(`zgrnf-fabric-*.jar` / `zgrnf-neoforge-*.jar`)和你的 `xxx.mp3` 放到**同一个文件夹**。
+1. 把 `inject-song.ps1`、下载到的 mod jar(`Lapis-Zgrnf-fabric-*.jar` / `Lapis-Zgrnf-neoforge-*.jar`)和你的 `xxx.mp3` 放到**同一个文件夹**。
 2. 在该文件夹打开 PowerShell,运行:
 
    ```powershell
    .\inject-song.ps1
    ```
 
-   脚本会自动找到目录里的 mp3 和所有 zgrnf mod jar,把 mp3 写入每个 jar 的 `assets/zgrnf/song.mp3`。
+   脚本会自动找到目录里的 mp3 和所有 Lapis-Zgrnf mod jar,把 mp3 写入每个 jar 的 `assets/zgrnf/song.mp3`。
 
 3. 把注入后的 jar 放进 `mods` 文件夹,启动游戏,按 **G** 打开界面、按 **Y** 播放即可。
 
 也支持手动指定文件:
 
 ```powershell
-.\inject-song.ps1 -Mp3 "D:\音乐\我的歌.mp3" -Jar "D:\mods\zgrnf-fabric-26.2-26.2.0.0.jar"
+.\inject-song.ps1 -Mp3 "D:\音乐\我的歌.mp3" -Jar "D:\mods\Lapis-Zgrnf-fabric-26.2-26.2.0.0.jar"
 ```
 
 - 服务端插件不需要音乐文件,音乐只在客户端本地播放。

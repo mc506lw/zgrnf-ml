@@ -1,19 +1,19 @@
-﻿# inject-song.ps1 - 把 MP3 打进 zgrnf mod jar
+# inject-song.ps1 - 把 MP3 打进 Lapis-Zgrnf mod jar
 #
-# zgrnf mod 不再内置音乐(避免版权问题),需要自己准备 MP3。
+# Lapis-Zgrnf mod 不再内置音乐(避免版权问题),需要自己准备 MP3。
 # 用法:
-#   1. 把本脚本、zgrnf 的 mod jar(zgrnf-fabric-*.jar / zgrnf-neoforge-*.jar)
+#   1. 把本脚本、Lapis-Zgrnf 的 mod jar(Lapis-Zgrnf-fabric-*.jar / Lapis-Zgrnf-neoforge-*.jar)
 #      和一个 .mp3 放到同一个文件夹
 #   2. 在 PowerShell 里运行:  .\inject-song.ps1
 #
 # 脚本会自动:
 #   - 找出目录里的第一个 .mp3(或用 -Mp3 指定)
-#   - 找出所有 zgrnf-fabric-*.jar / zgrnf-neoforge-*.jar(或用 -Jar 指定)
+#   - 找出所有 Lapis-Zgrnf-fabric-*.jar / Lapis-Zgrnf-neoforge-*.jar(或用 -Jar 指定)
 #   - 把 mp3 写入每个 jar 的 assets/zgrnf/song.mp3(mod 从这个路径读取播放)
 #
 # 参数示例:
-#   .\inject-song.ps1 -Mp3 "C:\Users\me\Desktop\my-song.mp3" -Jar "C:\mods\zgrnf-fabric-26.2-26.2.0.0.jar"
-#   .\inject-song.ps1 -Mp3 "song.mp3" -Jar zgrnf-fabric-*.jar,zgrnf-neoforge-*.jar
+#   .\inject-song.ps1 -Mp3 "C:\Users\me\Desktop\my-song.mp3" -Jar "C:\mods\Lapis-Zgrnf-fabric-26.2-26.2.0.0.jar"
+#   .\inject-song.ps1 -Mp3 "song.mp3" -Jar Lapis-Zgrnf-fabric-*.jar,Lapis-Zgrnf-neoforge-*.jar
 
 param(
     [string]$Mp3 = '',
@@ -43,9 +43,9 @@ if (-not (Test-Path -LiteralPath $Mp3)) {
 
 # 2. 找 mod jar
 if ($Jar.Count -eq 0) {
-    $jarList = Get-ChildItem -Path $dir -Filter *.jar -File | Where-Object { $_.Name -match '^zgrnf-(fabric|neoforge)-' }
+    $jarList = Get-ChildItem -Path $dir -Filter *.jar -File | Where-Object { $_.Name -match '^Lapis-Zgrnf-(fabric|neoforge)-' }
     if (-not $jarList) {
-        Write-Host "错误:目录里没有 zgrnf 的 mod jar。请把 jar 放到脚本同目录,或用 -Jar 指定。" -ForegroundColor Red
+        Write-Host "错误:目录里没有 Lapis-Zgrnf 的 mod jar。请把 jar 放到脚本同目录,或用 -Jar 指定。" -ForegroundColor Red
         exit 1
     }
     $Jar = @($jarList | ForEach-Object { $_.FullName })
