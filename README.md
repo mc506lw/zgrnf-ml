@@ -1,4 +1,4 @@
-# zgrnf-ml
+# Lapis-Zgrnf
 
 Chinese people can fly. Press **G** to open the music player UI.
 

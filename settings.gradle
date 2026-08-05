@@ -16,7 +16,7 @@ pluginManagement {
     }
 }
 
-rootProject.name = 'zgrnf'
+rootProject.name = 'Lapis-Zgrnf'
 includeBuild('build-logic')
 include('common')
 include('fabric')
